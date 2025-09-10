@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phonopy-spectroscopy"
+version = "0.1.0"
+description = "IR/Raman spectrum tools that interface with phonopy / phono3py"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Skelton Group" }]
+requires-python = ">=3.10"
+
+dependencies = ["numpy", "pyyaml", "h5py", "phonopy", "matplotlib"]
+
+[project.optional-dependencies]
+phono3py = ["phono3py"]
+
+[tool.setuptools.packages.find]
+where = ["lib"]
+include = ["spectroscopy*"]
+
+# Install the repo's existing CLI files in `scripts/` as real scripts.
+# (This is the pyproject.toml equivalent of setup.py's `scripts=[...]`.)
+[tool.setuptools]
+script-files = ["scripts/phonopy-ir", "scripts/phonopy-raman"]

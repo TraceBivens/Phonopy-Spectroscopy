@@ -1,0 +1,37 @@
+[workspace]
+channels = ["https://prefix.dev/conda-forge"]
+platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
+# pixi-build is currently a preview feature; you must opt-in:
+preview = ["pixi-build"]
+
+# For local dev, make the workspace depend on our package defined below
+[dependencies]
+phonopy-spectroscopy = { path = "." }
+
+[tasks]
+phonopy-ir-help = "phonopy-ir -h"
+
+# ---- This section makes the manifest a *package* that pixi-build can build ----
+[package]
+name = "phonopy-spectroscopy"
+version = "0.1.0"
+
+# Tell Pixi to build this package using the Python build backend
+[package.build]
+backend = { name = "pixi-build-python", version = ">=0.3.0" }
+
+# Build-time tools the backend needs to run your Python build
+[package.host-dependencies]
+python = ">=3.10,<3.13"
+setuptools = ">=61"
+wheel = "*"
+
+# Runtime dependencies (match your pyproject)
+[package.run-dependencies]
+numpy = "*"
+pyyaml = "*"
+h5py = "*"
+phonopy = "*"
+matplotlib = "*"
+# optional:
+# phono3py = "*"
