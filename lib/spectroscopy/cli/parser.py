@@ -73,6 +73,12 @@ def update_parser(parser, spectrum_type):
             help="Band indices to generate displacements for (1-3n_a, "
                  "default: all except acoustic modes)")
 
+        group.add_argument(
+            "--vasprun",
+            metavar="<file>", type=str, dest="VasprunFile",
+            help="Path to vasprun.xml with frequency-dependent Raman tensors "
+                 "for resonant Raman spectra")
+
     # Add spectrum-simulation parameters.
 
     group = parser.add_argument_group("Spectrum simulation")
@@ -110,6 +116,12 @@ def update_parser(parser, spectrum_type):
         type=str, dest="InstrumentBroadeningShape", default='gaussian',
         help="Instrument broadening shape ('gaussian' or 'lorentzian'; "
              "default: 'gaussian')")
+
+    group.add_argument(
+        "--laser-energy",
+        metavar="<energy>", type=float, dest="LaserEnergy", default=None,
+        help="Laser energy in eV for resonant Raman (requires --vasprun; "
+             "default: None)")
 
     # If spectrum_type is 'raman', add additional parameters for
     # polarised Raman.

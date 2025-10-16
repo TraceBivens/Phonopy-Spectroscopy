@@ -1,0 +1,22 @@
+[workspace]
+name = "phonopy-spectroscopy"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "win-64"]
+preview = ["pixi-build"]
+
+[package]
+name = "phonopy-spectroscopy"
+version = "0.1.0"
+description = "Phonopy-Spectroscopy is a project to add the capability to simulate vibrational spectra to the Phonopy code."
+license = "MIT"
+readme = "README.md"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "*" }
+
+[package.run-dependencies]
+python = ">=3.6"
+numpy = "*"
+pyyaml = "*"
+phonopy = "*"
+h5py = "*"

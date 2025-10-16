@@ -40,6 +40,8 @@ from spectroscopy.raman import (
     generate_displaced_structures, calculate_raman_activity_tensor,
     scalar_average_raman_activity_tensor)
 
+from spectroscopy.interfaces.vasp_interface import parse_vasprun_raman
+
 from spectroscopy.spectrum import simulate_spectrum
 
 from spectroscopy.text_export import (
@@ -423,7 +425,29 @@ def run_mode_raman_postproc(args, linewidths=None, irrep_data=None):
     _raman_check_dataset_units(
         distance_unit, frequency_unit, step_unit, dataset_file)
 
-    # Calculate Raman activity tensors and write to file.
+    # Calculate Raman activity tensors (static approximation)
+
+    if eps_tensor_sets is None:
+        raise Exception(
+            "Error: Dielectric tensors not found in data set file - "
+            "run the code with the -r option before processing with "
+            "the -p option.")
+
+    raman_tensors = []
+
+    for disp_steps, eps_tensors in zip(disp_step_sets, eps_tensor_sets):
+        raman_tensor = calculate_raman_activity_tensor(
+            eps_tensors, disp_steps, cell_volume, 'finite_difference')
+
+        raman_tensors.append(raman_tensor)
+
+    # Apply resonant scaling if vasprun.xml and laser energy provided
+    if hasattr(args, 'VasprunFile') and args.VasprunFile and args.LaserEnergy is not None:
+        raman_data = parse_vasprun_raman(args.VasprunFile)
+        idx = np.argmin(np.abs(raman_data['frequencies'] - args.LaserEnergy))
+        eps_tensor = raman_data['raman_tensors'][idx]
+        resonant_factor = np.mean(eps_tensor)  # Approximation: average Im(ε)
+        raman_tensors = [resonant_factor * tensor for tensor in raman_tensors]
 
     if eps_tensor_sets is None:
         raise Exception(

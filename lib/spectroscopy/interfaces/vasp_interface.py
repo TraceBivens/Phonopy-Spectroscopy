@@ -15,6 +15,7 @@ Package (VASP) code. """
 
 import math
 import re
+import xml.etree.ElementTree as ET
 
 import numpy as np
 
@@ -490,3 +491,63 @@ def parse_outcar(file_path, extract_list):
                 "OUTCAR file \"{1}\".".format(tag, file_path))
 
     return output_data
+
+
+# -------------
+# vasprun.xml files
+# -------------
+
+def parse_vasprun_raman(file_path):
+    """Parse a VASP vasprun.xml file and extract frequency-dependent dielectric tensors for Raman calculations.
+
+    Returns a dictionary with:
+        'frequencies': 1D numpy array of frequencies (in eV)
+        'raman_tensors': 3D numpy array of shape (n_freq, 3, 3) for dielectric tensors (used as Raman tensors)
+
+    Raises an exception if no dielectric data is found.
+    """
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    # Find the dielectricfunction element (assuming density-density for Raman)
+    dielectric_elem = root.find('.//dielectricfunction[@comment="density-density"]')
+    if dielectric_elem is None:
+        raise Exception("No dielectric data found in vasprun.xml. Ensure LOPTICS is set.")
+
+    # Parse the real part for Raman (related to polarizability)
+    real_elem = dielectric_elem.find('real')
+    if real_elem is None:
+        raise Exception("No real dielectric data found.")
+
+    array_elem = real_elem.find('array')
+    if array_elem is None:
+        raise Exception("No array data in dielectricfunction.")
+
+    set_elem = array_elem.find('set')
+    if set_elem is None:
+        raise Exception("No set data in dielectricfunction.")
+
+    frequencies = []
+    raman_tensors = []
+
+    for r in set_elem.findall('r'):
+        if r.text is None:
+            continue
+        values = r.text.split()
+        if len(values) < 7:
+            continue
+        energy = float(values[0])
+        # xx, yy, zz, xy, yz, xz
+        xx, yy, zz, xy, yz, xz = [float(v) for v in values[1:7]]
+        # Form the tensor
+        tensor = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
+        frequencies.append(energy)
+        raman_tensors.append(tensor)
+
+    if not frequencies:
+        raise Exception("No dielectric tensor points found in vasprun.xml")
+
+    return {
+        'frequencies': np.array(frequencies),
+        'raman_tensors': np.array(raman_tensors)
+    }
