@@ -11,12 +11,12 @@ license-files = ["LICENSE"]
 requires-python = ">=3.6"
 dependencies = ["numpy", "pyyaml", "phonopy", "h5py"]
 
+[project.scripts]
+phonopy-ir = "spectroscopy.cli.ir_main:main"
+phonopy-raman = "spectroscopy.cli.raman_main:main"
+xyz2poscar = "spectroscopy.cli.xyz2poscar_main:main"
+
 [tool.setuptools]
-script-files = [
-  "scripts/phonopy-ir",
-  "scripts/phonopy-raman",
-  "scripts/xyz2poscar",
-]
 packages = ["spectroscopy"]
 
 [tool.pixi-build-python]

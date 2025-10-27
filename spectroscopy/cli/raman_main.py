@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 # -------
 # Imports
 # -------
@@ -25,7 +22,7 @@ from spectroscopy.cli.runtime import (
 # Main
 # ----
 
-if __name__ == "__main__":
+def main():
     # Parse command-line arguments.
 
     parser = ArgumentParser(
@@ -95,3 +92,7 @@ if __name__ == "__main__":
 
         run_mode_raman_postproc(
             args, linewidths=linewidths, irrep_data=irrep_data)
+
+
+if __name__ == "__main__":
+    main()
