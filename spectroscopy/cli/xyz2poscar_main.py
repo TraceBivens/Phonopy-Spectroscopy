@@ -6,7 +6,8 @@
 
 from argparse import ArgumentParser
 
-from spectroscopy.cli.io_helper import read_xyz, write_poscar
+from spectroscopy.interfaces.misc import read_xyz
+from spectroscopy.interfaces.vasp_interface import write_poscar
 
 
 # ----
