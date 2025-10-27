@@ -13,6 +13,7 @@ readme = "README.md"
 
 [package.build]
 backend = { name = "setuptools", version = "*" }
+dependencies = { "pixi-build-api-version" = "*" }
 
 [package.host-dependencies]
 setuptools = "*"
