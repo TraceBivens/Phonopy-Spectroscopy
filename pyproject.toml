@@ -16,8 +16,8 @@ phonopy-ir = "spectroscopy.cli.ir_main:main"
 phonopy-raman = "spectroscopy.cli.raman_main:main"
 xyz2poscar = "spectroscopy.cli.xyz2poscar_main:main"
 
-[tool.setuptools]
-packages = ["spectroscopy"]
+[tool.setuptools.packages.find]
+include = ["spectroscopy*"]
 
 [tool.pixi-build-python]
 editable = false
