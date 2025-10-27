@@ -12,8 +12,10 @@ license = "MIT"
 readme = "README.md"
 
 [package.build]
-backend = { name = "setuptools", version = "*" }
-dependencies = { "pixi-build-api-version" = "*" }
+backend = { name = "pixi-build-python", version = "*" }
+
+[tool.pixi-build-python]
+editable = false
 
 [package.host-dependencies]
 setuptools = "*"
