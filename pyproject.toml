@@ -18,4 +18,3 @@ script-files = [
   "scripts/xyz2poscar",
 ]
 packages = ["spectroscopy"]
-package-dir = { "" = "lib" }
