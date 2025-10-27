@@ -14,6 +14,10 @@ readme = "README.md"
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
 
+[package.host-dependencies]
+setuptools = "*"
+wheel = "*"
+
 [package.run-dependencies]
 python = ">=3.6"
 numpy = "*"

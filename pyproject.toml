@@ -7,16 +7,15 @@ name = "phonopy-spectroscopy"
 version = "0.1.0"
 description = "Phonopy-Spectroscopy is a project to add the capability to simulate vibrational spectra to the Phonopy code."
 readme = "README.md"
-license = {file = "LICENSE"}
+license-files = ["LICENSE"]
 requires-python = ">=3.6"
-dependencies = [
-    "numpy",
-    "pyyaml",
-    "phonopy",
-    "h5py"
-]
+dependencies = ["numpy", "pyyaml", "phonopy", "h5py"]
 
 [tool.setuptools]
-script-files = ["scripts/phonopy-ir", "scripts/phonopy-raman", "scripts/xyz2poscar"]
+script-files = [
+  "scripts/phonopy-ir",
+  "scripts/phonopy-raman",
+  "scripts/xyz2poscar",
+]
 packages = ["spectroscopy"]
-package-dir = {"" = "lib"}
+package-dir = { "" = "lib" }
