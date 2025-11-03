@@ -32,7 +32,7 @@ from .utility.numpy_helper import (
 
 _IRREP_ACTIVITIES = {
     # Point group C_1.
-    "1": {"all": ["A"]},
+    "1": {"ir": ["A"], "raman": ["A"], "all": ["A"]},
     # Point group C_i.
     "-1": {"ir": ["Au"], "raman": ["Ag"], "all": ["Ag", "Au"]},
     # Point group C_2.

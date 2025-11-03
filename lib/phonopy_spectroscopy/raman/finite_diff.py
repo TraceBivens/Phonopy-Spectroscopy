@@ -87,13 +87,14 @@ class FiniteDisplacementRamanTensorCalculator:
                 ).band_indices_flat()
             else:
                 warnings.warn(
-                    'band_inds="raman" reset to "all" because the '
-                    "supplied phonon calculation does not have "
-                    "irreducible representations.",
-                    UserWarning,
+                    'band_inds="raman" defaults to all bands apart '
+                    "from the acoustic modes when the supplied phonon "
+                    "calculation does not have irreducible "
+                    "representations.",
+                    RuntimeWarning,
                 )
 
-                band_inds == list(range(gamma_ph.num_modes))
+                band_inds = list(range(gamma_ph.num_modes))
 
             # Exclude acoustic modes.
 
@@ -305,9 +306,9 @@ class FiniteDisplacementRamanTensorCalculator:
             if w_cut is not None:
                 e_cut = nm_to_ev(w_cut)
 
-            mask = e < e_cut
+            mask = e <= e_cut
 
-            if mask.sum() == len(e):
+            if mask.sum() == 0:
                 raise RuntimeError(
                     "The supplied e_cut/w_cut removes all the energies "
                     "in e."
