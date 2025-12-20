@@ -21,11 +21,11 @@ from phonopy_spectroscopy.interfaces.phonopy_interface import (
     hf_dielectric_and_born_from_born,
 )
 
-from phonopy_spectroscopy.ir.calculation import InfraredCalculator
+from phonopy_spectroscopy.ir.calculation import InfraredCalculation
 
 from phonopy_spectroscopy.utility.io_helper import load_json, save_json
 
-from comparison_helper import compare_infrared_calculators
+from comparison_helper import compare_infrared_calculations
 
 
 # ---------
@@ -33,7 +33,8 @@ from comparison_helper import compare_infrared_calculators
 # ---------
 
 
-_EXAMPLE_BASE_DIR = r"../example/snse-pnma"
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_EXAMPLE_BASE_DIR = os.path.join(_TEST_DIR, "..", "example", "snse-pnma")
 
 
 # -------------------------------
@@ -65,22 +66,22 @@ class TestInfraredCalculations(unittest.TestCase):
             gamma_ph.structure,
         )
 
-        # Construct an InfraredCalculator object.
+        # Construct an InfraredCalculation object.
 
-        calc = InfraredCalculator(gamma_ph, born_charges, eps_inf=eps_inf)
+        calc = InfraredCalculation(gamma_ph, born_charges, eps_inf=eps_inf)
 
-        # Test serialisation/deserialisation of the InfraredCalculator
+        # Test serialisation/deserialisation of the InfraredCalculation
         # class.
 
-        save_json(calc.to_dict(), r"ir_calculator.json.tmp")
+        save_json(calc.to_dict(), r"ir_calculation.json.tmp")
 
-        calc_cmp = InfraredCalculator.from_dict(
-            load_json(r"ir_calculator.json.tmp")
+        calc_cmp = InfraredCalculation.from_dict(
+            load_json(r"ir_calculation.json.tmp")
         )
 
-        os.remove(r"ir_calculator.json.tmp")
+        os.remove(r"ir_calculation.json.tmp")
 
-        self.assertTrue(compare_infrared_calculators(calc, calc_cmp))
+        self.assertTrue(compare_infrared_calculations(calc, calc_cmp))
 
 
 # ----

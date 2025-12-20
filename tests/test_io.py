@@ -45,7 +45,8 @@ from comparison_helper import compare_structures, compare_gamma_phonons
 # ---------
 
 
-_EXAMPLE_BASE_DIR = r"../example/Si"
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_EXAMPLE_BASE_DIR = os.path.join(_TEST_DIR, "..", "example", "si")
 
 
 # -------------

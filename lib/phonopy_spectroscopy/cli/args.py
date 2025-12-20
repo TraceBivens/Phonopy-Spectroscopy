@@ -23,7 +23,7 @@ from argparse import ArgumentParser
 
 
 def parser_init():
-    """_summary_"""
+    """Initialise a command-line argument parser with common arguments."""
 
     parser = ArgumentParser()
 
@@ -71,6 +71,7 @@ def parser_init():
         dest="linewidths_temp",
         type=float,
         default=300.0,
+        help="Temperature for loading linewidths (default: 300 K)",
     )
 
     parser.add_argument(
@@ -81,15 +82,44 @@ def parser_init():
         help="Irreps (irreps.yaml)",
     )
 
+    parser.add_argument(
+        "--range",
+        dest="spectrum_range",
+        type=float,
+        nargs=2,
+        default=None,
+        help="Frequency range for spectrum (min max)",
+    )
+
+    parser.add_argument(
+        "--step",
+        dest="spectrum_step",
+        type=float,
+        default=None,
+        help="Frequency step for spectrum",
+    )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        dest="output_file",
+        type=str,
+        default=None,
+        help="Output filename for spectrum data",
+    )
+
+    parser.add_argument(
+        "--plot",
+        dest="plot_spectrum",
+        action="store_true",
+        help="Plot the simulated spectrum",
+    )
+
+    return parser
+
 
 def parser_update_ir(parser):
-    """_summary_
-
-    Parameters
-    ----------
-    parser : _type_
-        _description_
-    """
+    """Add IR-specific arguments to a parser."""
 
     parser.add_argument(
         "--born",
@@ -100,32 +130,46 @@ def parser_update_ir(parser):
     )
 
     parser.add_argument(
-        "--eps_hf",
+        "--eps-hf",
         dest="epsilon_inf",
         type=str,
         default=None,
         help="High-frequency dielectric constant",
     )
 
+    return parser
+
 
 def parser_update_raman(parser):
-    """_summary_
+    """Add Raman-specific arguments to a parser."""
 
-    Parameters
-    ----------
-    parser : _type_
-        _description_
-    """
+    subparsers = parser.add_subparsers(dest="mode", help="Raman mode")
 
-    pass
+    # raman-disp subcommand
+    parser_disp = subparsers.add_parser(
+        "raman-disp", help="Generate displaced structures for Raman tensors"
+    )
+    parser_disp.add_argument(
+        "--distance",
+        dest="distance",
+        type=float,
+        default=0.01,
+        help="Displacement distance (default: 0.01 Angstrom)",
+    )
 
+    # raman-read subcommand
+    parser_read = subparsers.add_parser(
+        "raman-read", help="Read dielectric data and calculate Raman tensors"
+    )
+    parser_read.add_argument(
+        "--dielectric",
+        dest="dielectric_files",
+        type=str,
+        nargs="+",
+        help="Dieletric function data files (e.g. vasprun.xml)",
+    )
 
-# ------------------
-# Default parameters
-# ------------------
-
-
-
+    return parser
 
 
 # ---------------
@@ -134,36 +178,24 @@ def parser_update_raman(parser):
 
 
 def args_post_proc(args):
-    """_summary_
+    """Post-process common arguments."""
 
-    Parameters
-    ----------
-    args : _type_
-        _description_
-    """
+    if args.spectrum_range is None:
+        args.spectrum_range = [0.0, 10.0]  # Default range in THz?
 
-    pass
+    if args.spectrum_step is None:
+        args.spectrum_step = 0.01
+
+    return args
 
 
 def args_post_proc_ir(args):
-    """_summary_
-
-    Parameters
-    ----------
-    args : _type_
-        _description_
-    """
-
-    pass
+    """Post-process IR-specific arguments."""
+    args = args_post_proc(args)
+    return args
 
 
 def args_post_proc_raman(args):
-    """_summary_
-
-    Parameters
-    ----------
-    args : _type_
-        _description_
-    """
-
-    pass
+    """Post-process Raman-specific arguments."""
+    args = args_post_proc(args)
+    return args

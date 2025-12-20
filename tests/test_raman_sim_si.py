@@ -64,7 +64,8 @@ from phonopy_spectroscopy.utility.geometry import (
 # ---------
 
 
-_EXAMPLE_BASE_DIR = r"../example/si"
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_EXAMPLE_BASE_DIR = os.path.join(_TEST_DIR, "..", "example", "si")
 
 
 # ---------------------------

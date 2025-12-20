@@ -53,7 +53,8 @@ from io_helper import generate_fd_raman_dielectric_input_file_list
 # ---------
 
 
-_EXAMPLE_BASE_DIR = r"../example/si"
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_EXAMPLE_BASE_DIR = os.path.join(_TEST_DIR, "..", "example", "si")
 
 
 # ------------------------------------------------

@@ -1,0 +1,3 @@
+[console_scripts]
+phonopy-ir = phonopy_spectroscopy.cli.main_ir:main
+phonopy-raman = phonopy_spectroscopy.cli.main_raman:main

@@ -117,14 +117,14 @@ def compare_gamma_phonons(gamma_ph_cmp, gamma_ph_ref):
     )
 
 
-def compare_infrared_calculators(calc_cmp, calc_ref):
-    """Compare two `InfraredCalculator` objects and determine whether
+def compare_infrared_calculations(calc_cmp, calc_ref):
+    """Compare two `InfraredCalculation` objects and determine whether
     they hold identical data.
 
     Parameters
     ----------
-    calc_cmp, calc_ref : InfraredCalculator
-        `InfraredCalculator` objects to compare.
+    calc_cmp, calc_ref : InfraredCalculation
+        `InfraredCalculation` objects to compare.
 
     Returns
     -------

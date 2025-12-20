@@ -34,7 +34,7 @@ from phonopy_spectroscopy.interfaces.vasp_interface import (
     _parse_dielectric_function,
 )
 
-from phonopy_spectroscopy.ir.calculation import InfraredCalculator
+from phonopy_spectroscopy.ir.calculation import InfraredCalculation
 
 from phonopy_spectroscopy.phonon import GammaPhonons
 
@@ -46,7 +46,8 @@ import matplotlib.pyplot as plt
 # ---------
 
 
-_EXAMPLE_BASE_DIR = r"../example/snse-pnma"
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_EXAMPLE_BASE_DIR = os.path.join(_TEST_DIR, "..", "example", "snse-pnma")
 
 
 # ------------------------------
@@ -58,7 +59,7 @@ class TestInfratedSimulations(unittest.TestCase):
     def setUp(self):
         """Perform setup."""
 
-        # Set up and store an InfraredCalculator object for testing.
+        # Set up and store an InfraredCalculation object for testing.
 
         lws_file = os.path.join(
             _EXAMPLE_BASE_DIR, r"kappa-m16816.Prim.FullPP.hdf5"
@@ -76,7 +77,7 @@ class TestInfratedSimulations(unittest.TestCase):
             gamma_ph.structure,
         )
 
-        self._calc = InfraredCalculator(
+        self._calc = InfraredCalculation(
             gamma_ph, born_charges, eps_inf=eps_inf
         )
 
@@ -238,7 +239,7 @@ class TestInfratedSimulations(unittest.TestCase):
         e_ref /= 2.0 * np.pi
 
         # To compare to the reference calculation, we need to generate
-        # new GammaPhonons and InfraredCalculator objects without the
+        # new GammaPhonons and InfraredCalculation objects without the
         # calculated linewidths.
 
         calc = self._calc
@@ -251,7 +252,7 @@ class TestInfratedSimulations(unittest.TestCase):
             irreps=gamma_ph.irreps,
         )
 
-        calc_new = InfraredCalculator(
+        calc_new = InfraredCalculation(
             gamma_ph_new, calc.born_effective_charges, eps_inf=calc.epsilon_inf
         )
 

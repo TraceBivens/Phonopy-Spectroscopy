@@ -337,6 +337,7 @@ class FiniteDisplacementRamanTensorCalculator:
             "band_indices": self._band_inds.tolist(),
             "displacement_steps": self._disp_steps.tolist(),
             "coefficients": self._step_coeffs.tolist(),
+            "step_size": self._step_size,
         }
 
     @staticmethod
@@ -357,9 +358,23 @@ class FiniteDisplacementRamanTensorCalculator:
             from the data in `d`.
         """
 
-        return FiniteDisplacementRamanTensorCalculator(
-            GammaPhonons.from_dict(d["gamma_phonons"]),
-            d["band_indices"],
-            disp_steps=d["displacement_steps"],
-            step_coeffs=d["coefficients"],
+        # We need to bypass __init__ because it doesn't support setting
+        # all internal data directly.
+
+        calc = FiniteDisplacementRamanTensorCalculator.__new__(
+            FiniteDisplacementRamanTensorCalculator
         )
+
+        calc._gamma_ph = GammaPhonons.from_dict(d["gamma_phonons"])
+        calc._band_inds = np.array(d["band_indices"], dtype=int)
+        calc._disp_steps = np.array(d["displacement_steps"], dtype=float)
+        calc._step_coeffs = np.array(d["coefficients"], dtype=float)
+
+        # Reconstruct step_size if possible.
+
+        if "step_size" in d:
+            calc._step_size = d["step_size"]
+        else:
+            calc._step_size = np.max(np.abs(calc._disp_steps))
+
+        return calc
