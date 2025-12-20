@@ -1,0 +1,38 @@
+[project]
+name = "phonopy-spectroscopy"
+version = "0.0.1"
+description = "Interfaces with Phonopy, Phono3py, and Vasp to simulate Raman/IR spectra"
+readme = "README.md"
+dependencies = ["h5py", "numpy", "pandas", "phonopy", "pyyaml", "scipy"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+preview = ["pixi-build"]
+
+[tool.pixi.dependencies]
+phonopy = "*"
+numpy = "*"
+scipy = "*"
+pandas = "*"
+pyyaml = "*"
+h5py = "*"
+
+[tool.pixi.package]
+run-dependencies = { phonopy = "*", numpy = "*", scipy = "*", pandas = "*", pyyaml = "*", h5py = "*" }
+name = "phonopy-spectroscopy"
+build = { backend = { name = "pixi-build-python", version = "*", channels = [
+  "https://prefix.dev/pixi-build-backends",
+  "https://prefix.dev/conda-forge",
+] } }
+host-dependencies = { setuptools = "*" }
+
+[tool.setuptools.package-dir]
+"" = "lib"
+
+[tool.setuptools.packages.find]
+where = ["lib"]
