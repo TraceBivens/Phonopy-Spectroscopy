@@ -64,7 +64,7 @@ def main():
         )
 
         fd_calc = FiniteDisplacementRamanTensorCalculator(
-            gamma_ph, step_size=args.distance, prec=2, band_inds="active"
+            gamma_ph, step_size=args.distance, prec=args.precision, band_inds="active"
         )
 
         print(
@@ -89,7 +89,7 @@ def main():
         )
 
         fd_calc = FiniteDisplacementRamanTensorCalculator(
-            gamma_ph, step_size=args.distance, prec=2, band_inds="active"
+            gamma_ph, step_size=args.distance, prec=args.precision, band_inds="active"
         )
 
         if not args.dielectric_files:

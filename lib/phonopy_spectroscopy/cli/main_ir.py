@@ -71,7 +71,7 @@ def main():
     from phonopy_spectroscopy.instrument import Geometry, Polarisation
     geom = Geometry("z", "-z")
     i_pol = Polarisation.from_direction("x")
-    s_pol = "parallel"
+    s_pol = i_pol
     
     # Calculate scalar powder dielectric function
     dielectric_func = calc.scalar_powder_dielectric_function(

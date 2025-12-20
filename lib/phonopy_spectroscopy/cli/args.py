@@ -115,6 +115,23 @@ def parser_init():
         help="Plot the simulated spectrum",
     )
 
+    parser.add_argument(
+        "--wavelength",
+        "-w",
+        dest="wavelength",
+        type=float,
+        default=532.0,
+        help="Laser wavelength in nm (default: 532 nm)",
+    )
+
+    parser.add_argument(
+        "--temp",
+        dest="temperature",
+        type=float,
+        default=300.0,
+        help="Temperature for intensity scaling (default: 300 K)",
+    )
+
     return parser
 
 
@@ -139,27 +156,40 @@ def parser_update_ir(parser):
 
     return parser
 
-
 def parser_update_raman(parser):
     """Add Raman-specific arguments to a parser."""
 
-    subparsers = parser.add_subparsers(dest="mode", help="Raman mode")
-
-    # raman-disp subcommand
-    parser_disp = subparsers.add_parser(
-        "raman-disp", help="Generate displaced structures for Raman tensors"
-    )
-    parser_disp.add_argument(
+    # Common Raman arguments (distance, precision)
+    parser_raman_common = ArgumentParser(add_help=False)
+    parser_raman_common.add_argument(
         "--distance",
         dest="distance",
         type=float,
         default=0.01,
         help="Displacement distance (default: 0.01 Angstrom)",
     )
+    parser_raman_common.add_argument(
+        "--prec",
+        dest="precision",
+        type=int,
+        default=2,
+        help="Precision of central-difference scheme (default: 2)",
+    )
+
+    subparsers = parser.add_subparsers(dest="mode", help="Raman mode")
+
+    # raman-disp subcommand
+    subparsers.add_parser(
+        "raman-disp",
+        parents=[parser_raman_common],
+        help="Generate displaced structures for Raman tensors"
+    )
 
     # raman-read subcommand
     parser_read = subparsers.add_parser(
-        "raman-read", help="Read dielectric data and calculate Raman tensors"
+        "raman-read",
+        parents=[parser_raman_common],
+        help="Read dielectric data and calculate Raman tensors"
     )
     parser_read.add_argument(
         "--dielectric",
