@@ -72,7 +72,7 @@ class TestCLI(unittest.TestCase):
     def test_raman_disp_run(self, mock_show):
         test_args = [
             "phonopy-raman",
-            "--cell", os.path.join(_EXAMPLE_SI, "phonopy.yaml"),
+            "--cell", os.path.join(_EXAMPLE_SI, "POSCAR.Opt.Prim"),
             "--freqs-evecs", os.path.join(_EXAMPLE_SI, "mesh.yaml"),
             "--irreps", os.path.join(_EXAMPLE_SI, "irreps.yaml"),
             "-d",
@@ -110,7 +110,7 @@ class TestCLI(unittest.TestCase):
         # Test with explicit units (THz)
         test_args = [
             "phonopy-raman",
-            "--cell", os.path.join(_EXAMPLE_SI, "phonopy.yaml"),
+            "--cell", os.path.join(_EXAMPLE_SI, "POSCAR.Opt.Prim"),
             "--freqs-evecs", os.path.join(_EXAMPLE_SI, "mesh.yaml"),
             "--irreps", os.path.join(_EXAMPLE_SI, "irreps.yaml"),
             "--units", "thz",
