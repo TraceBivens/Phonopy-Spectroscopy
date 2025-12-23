@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+pyyaml
+pandas
+h5py
+phonopy
