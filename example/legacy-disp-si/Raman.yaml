@@ -1,0 +1,40 @@
+distance_units: Ang
+frequency_units: THz
+step_units: sqrt(amu) * Ang
+
+lattice_vectors:
+     - [      0.00000000,      2.71784736,      2.71784736 ]
+     - [      2.71784736,      0.00000000,      2.71784736 ]
+     - [      2.71784736,      2.71784736,      0.00000000 ]
+
+displacement_sets:
+- # 1
+  band_index: 4
+  frequency: 15.2369331161
+  displacements:
+   - # Step 1
+     displacement_step: -0.05299575
+     max_cartesian_displacement: -0.00707107
+   - # Step 2
+     displacement_step: 0.05299575
+     max_cartesian_displacement: 0.00707107
+- # 2
+  band_index: 5
+  frequency: 15.2369331161
+  displacements:
+   - # Step 1
+     displacement_step: -0.05299575
+     max_cartesian_displacement: -0.00707107
+   - # Step 2
+     displacement_step: 0.05299575
+     max_cartesian_displacement: 0.00707107
+- # 3
+  band_index: 6
+  frequency: 15.2369331161
+  displacements:
+   - # Step 1
+     displacement_step: -0.05299575
+     max_cartesian_displacement: -0.00707107
+   - # Step 2
+     displacement_step: 0.05299575
+     max_cartesian_displacement: 0.00707107
