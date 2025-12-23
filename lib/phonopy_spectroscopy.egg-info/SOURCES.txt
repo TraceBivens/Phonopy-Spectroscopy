@@ -48,9 +48,11 @@ lib/phonopy_spectroscopy/utility/geometry.py
 lib/phonopy_spectroscopy/utility/io_helper.py
 lib/phonopy_spectroscopy/utility/numpy_helper.py
 lib/phonopy_spectroscopy/utility/quadrature.py
+tests/test_cli.py
 tests/test_io.py
 tests/test_ir_calc.py
 tests/test_ir_sim_snse.py
+tests/test_legacy.py
 tests/test_raman_calc.py
 tests/test_raman_sim_si.py
 tests/test_raman_sim_si_model.py

@@ -209,6 +209,19 @@ def parser_update_raman(parser):
         help="Post-process dielectric function data files (e.g. vasprun.xml)",
     )
 
+    parser.add_argument(
+        "--legacy",
+        dest="legacy",
+        type=str,
+        nargs="?",
+        const="Raman.yaml",
+        default=None,
+        help=(
+            "Use legacy displacement metadata from Raman.yaml. "
+            "Optional: path to the yaml file (default: Raman.yaml)."
+        ),
+    )
+
     return parser
 
 

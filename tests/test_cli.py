@@ -136,5 +136,36 @@ class TestCLI(unittest.TestCase):
         if os.path.exists(plot_file):
             os.remove(plot_file)
 
+    @patch("matplotlib.pyplot.show")
+    def test_raman_legacy_run(self, mock_show):
+        output_file = "test_raman_legacy.dat"
+        if os.path.exists(output_file):
+            os.remove(output_file)
+            
+        legacy_yaml = os.path.join(_TEST_DIR, "..", "example", "legacy-disp-si", "Raman.yaml")
+        
+        # We need mock dielectric data because we don't have the vasprun.xml files for legacy
+        # in the repo, but we can verify the loading and calculation path.
+        
+        test_args = [
+            "phonopy-raman",
+            "--cell", os.path.join(_EXAMPLE_SI, "phonopy.yaml"),
+            "--freqs-evecs", os.path.join(_EXAMPLE_SI, "mesh.yaml"),
+            "--legacy", legacy_yaml,
+            "-p"
+        ] + ["fake.xml"] * 6
+
+        with patch("sys.argv", test_args):
+            with patch("phonopy_spectroscopy.cli.main_raman.fd_read_dielectrics_vasp") as mock_read:
+                # Mock returning 0 energy and fake dielectric tensor (N, M, 3, 3)
+                # For this legacy example, N=3, M=2
+                mock_read.return_value = (np.array([0.0]), np.zeros((3, 2, 1, 3, 3)))
+                main_raman()
+            
+        self.assertTrue(os.path.exists("raman.dat"))
+        
+        if os.path.exists("raman.dat"):
+            os.remove("raman.dat")
+
 if __name__ == "__main__":
     unittest.main()

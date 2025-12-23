@@ -113,12 +113,17 @@ def main():
         save_yaml(fd_calc.to_dict(), "raman_disp.yaml")
 
     if args.post_process:
-        from phonopy_spectroscopy.cli.utility.raman_io import (
-            fd_read_dielectrics_vasp,
-        )
-
         fd_calc = None
-        if os.path.exists("raman_disp.yaml"):
+        if args.legacy:
+            if os.path.exists(args.legacy):
+                print(f"  Loading legacy displacement metadata from {args.legacy}...")
+                fd_calc = FiniteDisplacementRamanTensorCalculator.from_legacy_yaml(
+                    gamma_ph, args.legacy
+                )
+            else:
+                print(f"  Error: Legacy metadata file '{args.legacy}' not found.")
+                sys.exit(1)
+        elif os.path.exists("raman_disp.yaml"):
             print("  Loading displacement metadata from raman_disp.yaml...")
             fd_calc = FiniteDisplacementRamanTensorCalculator.from_dict(
                 load_yaml("raman_disp.yaml")
@@ -144,7 +149,10 @@ def main():
 
         # calculate_raman_tensors returns a RamanCalculation object
         print("  Calculating Raman tensors...")
-        raman_calc = fd_calc.calculate_raman_tensors(eps_e, e)
+        if args.legacy:
+            raman_calc = fd_calc.calculate_raman_tensors_legacy(eps_e, e)
+        else:
+            raman_calc = fd_calc.calculate_raman_tensors(eps_e, e)
 
         # Calculate powder Raman spectrum
         from phonopy_spectroscopy.instrument import Geometry, Polarisation

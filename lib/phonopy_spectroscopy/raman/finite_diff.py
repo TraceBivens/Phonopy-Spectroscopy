@@ -134,6 +134,9 @@ class FiniteDisplacementRamanTensorCalculator:
         self._disp_steps = disp_steps
         self._step_coeffs = step_coeffs
 
+        # For legacy support with band-dependent step sizes
+        self._step_size_matrix = None
+
     @property
     def gamma_phonons(self):
         """GammaPhonons : Gamma-point phonon calculation."""
@@ -321,6 +324,72 @@ class FiniteDisplacementRamanTensorCalculator:
             self._gamma_ph, RamanTensors(r_t, e), self._band_inds
         )
 
+    def calculate_raman_tensors_legacy(
+        self, dielectrics, e=None, e_cut=None, w_cut=None
+    ):
+        """Calculate Raman tensors using band-dependent step sizes, as
+        used in the legacy displacement convention.
+
+        Parameters
+        ----------
+        dielectrics : array_like
+            Dielectric tensors or energy-dependent dielectric functions
+            (shape: `(N, M, 3, 3)` or `(N, M, O, 3, 3)`).
+        e : array_like or None, optional
+            array_like with the energies at which the dielectirc
+            constants/functions were evaluated (eV, shape: `(O,)`).
+        e_cut, w_cut : float or None, optional
+            Energy or wavelength cutoff for energy-dependent dielectric
+            functions (default: `None` = no cutoff).
+
+        Returns
+        -------
+        calc : RamanCalculation
+            A `RamanCalculation` object.
+        """
+
+        if self._step_size_matrix is None:
+            raise RuntimeError(
+                "calculate_raman_tensors_legacy() requires a calculator "
+                "initialised with band-dependent step sizes (e.g. from "
+                "from_legacy_yaml())."
+            )
+
+        dielectrics, _ = np_expand_dims(
+            np.asarray(dielectrics),
+            (len(self._band_inds), len(self._disp_steps), None, 3, 3),
+        )
+
+        if e is not None:
+            e = np.asarray(e)
+
+        # Sum over steps with coefficients
+        # Shape: (N, O, 3, 3)
+        diff_eps = (
+            dielectrics
+            * self._step_coeffs[
+                np.newaxis, :, np.newaxis, np.newaxis, np.newaxis
+            ]
+        ).sum(axis=1)
+
+        # Apply band-dependent step sizes
+        # Shape: (N, O, 3, 3)
+        r_t = (
+            diff_eps
+            / self._step_size_matrix[:, np.newaxis, np.newaxis, np.newaxis]
+        ) * (self._gamma_ph._struct.volume() / (4.0 * np.pi))
+
+        if e is not None and (e_cut is not None or w_cut is not None):
+            if w_cut is not None:
+                e_cut = nm_to_ev(w_cut)
+            mask = e <= e_cut
+            e = e[mask]
+            r_t = r_t[:, mask, :, :]
+
+        return RamanCalculation(
+            self._gamma_ph, RamanTensors(r_t, e), self._band_inds
+        )
+
     def to_dict(self):
         """Return the internal data as a dictionary of native Python
         types for serialisation.
@@ -376,5 +445,59 @@ class FiniteDisplacementRamanTensorCalculator:
             calc._step_size = d["step_size"]
         else:
             calc._step_size = np.max(np.abs(calc._disp_steps))
+
+        calc._step_size_matrix = None
+        if "step_size_matrix" in d and d["step_size_matrix"] is not None:
+            calc._step_size_matrix = np.array(d["step_size_matrix"], dtype=float)
+
+        return calc
+
+    @staticmethod
+    def from_legacy_yaml(gamma_ph, yaml_file):
+        """Create a new `FiniteDisplacementRamanTensorCalculator`
+        instance from a legacy `Raman.yaml` file.
+
+        Parameters
+        ----------
+        gamma_ph : GammaPhonons
+            Gamma-point phonon calculation.
+        yaml_file : str
+            Path to the legacy `Raman.yaml` file.
+
+        Returns
+        -------
+        calc : FiniteDisplacementRamanTensorCalculator
+            `FiniteDisplacementRamanTensorCalculator` object.
+        """
+
+        from ..utility.io_helper import load_yaml
+
+        d = load_yaml(yaml_file)
+
+        band_inds = []
+        step_sizes = []
+
+        for entry in d["displacement_sets"]:
+            band_inds.append(entry["band_index"] - 1)  # 1-indexed to 0-indexed
+
+            # Legacy code typically used 2 steps: -step and +step
+            # We assume the magnitude is consistent.
+            steps = [abs(ds["displacement_step"]) for ds in entry["displacements"]]
+            step_sizes.append(np.mean(steps))
+
+        # Reconstruct a basic calculator
+        calc = FiniteDisplacementRamanTensorCalculator.__new__(
+            FiniteDisplacementRamanTensorCalculator
+        )
+        calc._gamma_ph = gamma_ph
+        calc._band_inds = np.array(band_inds, dtype=int)
+
+        # Standard coefficients for 2-step central difference
+        cd_steps, step_coeffs = central_difference_coefficients(1, 2)
+        calc._disp_steps = cd_steps  # Dummy steps, magnitude is in step_size_matrix
+        calc._step_coeffs = step_coeffs
+        calc._step_size = 1.0  # Normalized
+
+        calc._step_size_matrix = np.array(step_sizes, dtype=float)
 
         return calc
