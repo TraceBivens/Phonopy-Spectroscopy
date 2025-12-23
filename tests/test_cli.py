@@ -44,7 +44,6 @@ class TestCLI(unittest.TestCase):
             "--irreps", os.path.join(_EXAMPLE_SNSE, "irreps.yaml"),
             "--born", os.path.join(_EXAMPLE_SNSE, "BORN"),
             "--lws-file", os.path.join(_EXAMPLE_SNSE, "kappa-m16816.Prim.FullPP.hdf5"),
-            "--range", "0", "10",
             "--output", output_file,
             "--plot"
         ]
@@ -55,21 +54,29 @@ class TestCLI(unittest.TestCase):
         self.assertTrue(os.path.exists(output_file))
         df = pd.read_csv(output_file)
         self.assertIn("freq_energy", df.columns)
+        # Verify range is in cm-1 (peaks are > 50 cm-1, while in THz they are < 10)
+        self.assertGreater(df["freq_energy"].max(), 50)
         self.assertIn("eps_im", df.columns)
         self.assertTrue(mock_show.called)
         
+        # Verify plot was saved
+        plot_file = "532.png"
+        self.assertTrue(os.path.exists(plot_file))
+        
         if os.path.exists(output_file):
             os.remove(output_file)
+        if os.path.exists(plot_file):
+            os.remove(plot_file)
 
     @patch("matplotlib.pyplot.show")
     def test_raman_disp_run(self, mock_show):
         test_args = [
             "phonopy-raman",
-            "--cell", os.path.join(_EXAMPLE_SI, "POSCAR.Opt.Prim"),
+            "--cell", os.path.join(_EXAMPLE_SI, "phonopy.yaml"),
             "--freqs-evecs", os.path.join(_EXAMPLE_SI, "mesh.yaml"),
             "--irreps", os.path.join(_EXAMPLE_SI, "irreps.yaml"),
-            "raman-disp",
-            "--distance", "0.01"
+            "-d",
+            "--amplitude", "0.01"
         ]
         
         # Clean up existing POSCAR files if any
@@ -82,10 +89,13 @@ class TestCLI(unittest.TestCase):
             
         poscars = glob.glob("POSCAR-*-*")
         self.assertGreater(len(poscars), 0)
+        self.assertTrue(os.path.exists("raman_disp.yaml"))
         
         # Cleanup
         for f in poscars:
             os.remove(f)
+        if os.path.exists("raman_disp.yaml"):
+            os.remove("raman_disp.yaml")
 
     @patch("matplotlib.pyplot.show")
     def test_raman_read_run(self, mock_show):
@@ -97,16 +107,16 @@ class TestCLI(unittest.TestCase):
         import glob
         dielectric_files = glob.glob(dielectric_pattern)
         
+        # Test with explicit units (THz)
         test_args = [
             "phonopy-raman",
-            "--cell", os.path.join(_EXAMPLE_SI, "POSCAR.Opt.Prim"),
+            "--cell", os.path.join(_EXAMPLE_SI, "phonopy.yaml"),
             "--freqs-evecs", os.path.join(_EXAMPLE_SI, "mesh.yaml"),
             "--irreps", os.path.join(_EXAMPLE_SI, "irreps.yaml"),
-            "--range", "0", "20",
+            "--units", "thz",
             "--output", output_file,
             "--plot",
-            "raman-read",
-            "--dielectric"
+            "-p"
         ] + dielectric_files
 
         with patch("sys.argv", test_args):
@@ -117,8 +127,14 @@ class TestCLI(unittest.TestCase):
         self.assertIn("freq_energy", df.columns)
         self.assertTrue(mock_show.called)
         
+        # Verify plot was saved
+        plot_file = "532.png"
+        self.assertTrue(os.path.exists(plot_file))
+        
         if os.path.exists(output_file):
             os.remove(output_file)
+        if os.path.exists(plot_file):
+            os.remove(plot_file)
 
 if __name__ == "__main__":
     unittest.main()

@@ -141,7 +141,14 @@ def gamma_phonons_from_phono3py(
     irreps = None
 
     if irreps_file is not None:
-        irreps = irreps_from_irreps_yaml(irreps_file)
+        if os.path.exists(irreps_file):
+            irreps = irreps_from_irreps_yaml(irreps_file)
+        else:
+            warnings.warn(
+                "Irreps file {0} requested but not found. "
+                "Mode filtering will be disabled.".format(irreps_file),
+                RuntimeWarning,
+            )
 
     # Construct and return a GammaPhonons object with the data. (The
     # GammaPhonons constructor will handle validation and consistency

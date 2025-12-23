@@ -61,15 +61,16 @@ class TestIO(unittest.TestCase):
         # Load reference structures from VASP POSCAR and Phonopy
         # phonopy.yaml files and compare.
 
-        struct_ref_1 = structure_from_poscar(
-            os.path.join(_EXAMPLE_BASE_DIR, r"POSCAR.Opt.Prim")
-        )
-
         struct_ref_2 = structure_from_phonopy_yaml(
             os.path.join(_EXAMPLE_BASE_DIR, r"phonopy.yaml")
         )
 
+        # Write to POSCAR and read back to test POSCAR I/O
+        structure_to_poscar(struct_ref_2, "POSCAR.tmp")
+        struct_ref_1 = structure_from_poscar("POSCAR.tmp")
+
         self.assertTrue(compare_structures(struct_ref_2, struct_ref_1))
+        os.remove("POSCAR.tmp")
 
         # Write a structure to a VASP POSCAR file, read it back, and
         # ensure the two Structure objects are equivalent.

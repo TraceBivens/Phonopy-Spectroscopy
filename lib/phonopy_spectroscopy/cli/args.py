@@ -31,8 +31,8 @@ def parser_init():
         "--cell",
         dest="cell_file",
         type=str,
-        default="POSCAR",
-        help="Crystal structure (POSCAR or phonopy.yaml)",
+        default="phonopy.yaml",
+        help="Crystal structure (e.g. phonopy.yaml or POSCAR)",
     )
 
     parser.add_argument(
@@ -41,8 +41,8 @@ def parser_init():
         type=str,
         default=None,
         help=(
-            "Frequencies and eigenvectors (mesh.yaml, mesh.hdf5, "
-            "band.yaml, or band.hdf5)"
+            "Frequencies and eigenvectors (default: mesh.yaml, "
+            "mesh.hdf5, band.yaml, or band.hdf5)"
         ),
     )
 
@@ -132,6 +132,16 @@ def parser_init():
         help="Temperature for intensity scaling (default: 300 K)",
     )
 
+    parser.add_argument(
+        "--units",
+        "-u",
+        dest="units",
+        type=str,
+        default="inv_cm",
+        choices=["thz", "inv_cm", "ev", "mev"],
+        help="Frequency/energy units for the spectrum (default: inv_cm)",
+    )
+
     return parser
 
 
@@ -159,16 +169,30 @@ def parser_update_ir(parser):
 def parser_update_raman(parser):
     """Add Raman-specific arguments to a parser."""
 
-    # Common Raman arguments (distance, precision)
-    parser_raman_common = ArgumentParser(add_help=False)
-    parser_raman_common.add_argument(
-        "--distance",
-        dest="distance",
+    parser.add_argument(
+        "--displace",
+        "-d",
+        dest="displace",
+        nargs="?",
+        const=True,
+        default=False,
+        help=(
+            "Generate displaced structures for Raman tensors. "
+            "Optional argument: crystal structure file (default: value "
+            "of --cell)."
+        ),
+    )
+
+    parser.add_argument(
+        "--amplitude",
+        "-a",
+        dest="amplitude",
         type=float,
         default=0.01,
-        help="Displacement distance (default: 0.01 Angstrom)",
+        help="Displacement magnitude (default: 0.01 Angstrom)",
     )
-    parser_raman_common.add_argument(
+
+    parser.add_argument(
         "--prec",
         dest="precision",
         type=int,
@@ -176,27 +200,13 @@ def parser_update_raman(parser):
         help="Precision of central-difference scheme (default: 2)",
     )
 
-    subparsers = parser.add_subparsers(dest="mode", help="Raman mode")
-
-    # raman-disp subcommand
-    subparsers.add_parser(
-        "raman-disp",
-        parents=[parser_raman_common],
-        help="Generate displaced structures for Raman tensors"
-    )
-
-    # raman-read subcommand
-    parser_read = subparsers.add_parser(
-        "raman-read",
-        parents=[parser_raman_common],
-        help="Read dielectric data and calculate Raman tensors"
-    )
-    parser_read.add_argument(
-        "--dielectric",
-        dest="dielectric_files",
+    parser.add_argument(
+        "--post-process",
+        "-p",
+        dest="post_process",
         type=str,
         nargs="+",
-        help="Dieletric function data files (e.g. vasprun.xml)",
+        help="Post-process dielectric function data files (e.g. vasprun.xml)",
     )
 
     return parser
@@ -210,11 +220,8 @@ def parser_update_raman(parser):
 def args_post_proc(args):
     """Post-process common arguments."""
 
-    if args.spectrum_range is None:
-        args.spectrum_range = [0.0, 10.0]  # Default range in THz?
-
-    if args.spectrum_step is None:
-        args.spectrum_step = 0.01
+    # We allow spectrum_range and spectrum_step to be None, so that the
+    # libraries' automatic range/resolution detection can be used.
 
     return args
 

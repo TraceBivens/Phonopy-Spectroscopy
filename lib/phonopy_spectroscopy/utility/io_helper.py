@@ -82,3 +82,18 @@ def load_yaml(file_path):
 
     with open(file_path, "rb") as f:
         return yaml.load(f, Loader=Loader)
+
+
+def save_yaml(obj, file_path):
+    """Save a Python data structure to a YAML-format file.
+
+    Parameters
+    ----------
+    obj : any
+        Python object to save.
+    file_path : str
+        File path.
+    """
+
+    with open(file_path, "w") as f:
+        yaml.dump(obj, f, default_flow_style=False)

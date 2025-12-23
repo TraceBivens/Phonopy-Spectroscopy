@@ -28,15 +28,23 @@ def main():
         sys.exit(1)
     
     if args.freqs_evecs_file is None:
-        # Try to find a default freqs/evecs file
-        for f in ["mesh.yaml", "mesh.hdf5", "phonopy.yaml"]:
-            if os.path.exists(f):
+        # Try a list of standard phonopy output files
+        for f in ["mesh.yaml", "mesh.hdf5", "band.yaml", "band.hdf5", "phonopy.yaml"]:
+             if os.path.exists(f):
                 args.freqs_evecs_file = f
                 break
-    
+
     if args.freqs_evecs_file is None:
         print("Error: No frequencies/eigenvectors file specified or found.")
+        print("Please provide a file with --freqs-evecs.")
         sys.exit(1)
+
+    irreps_file = args.irreps_file
+    if irreps_file is None or not os.path.exists(irreps_file if irreps_file else ""):
+        if os.path.exists("irreps.yaml"):
+            irreps_file = "irreps.yaml"
+        else:
+            irreps_file = None
 
     print(f"  Loading phonons from {args.freqs_evecs_file}...")
     gamma_ph = gamma_phonons_from_phono3py(
@@ -44,8 +52,18 @@ def main():
         args.freqs_evecs_file,
         lws_file=args.linewidths_file,
         lws_t=args.linewidths_temp,
-        irreps_file=args.irreps_file,
+        irreps_file=irreps_file,
     )
+
+    if gamma_ph.has_irreps:
+        active_irreps = gamma_ph.irreps.get_subset("ir").band_indices_flat()
+        # Exclude acoustic modes
+        acc_inds = gamma_ph.get_acoustic_mode_indices()
+        active_inds = [idx for idx in active_irreps if idx not in acc_inds]
+        print(f"  Identified {len(active_inds)} IR-active modes out of {gamma_ph.num_modes} total bands.")
+    else:
+        print("  Warning: Irreps not found. Mode filtering disabled.")
+        print(f"  Using all {gamma_ph.num_modes - len(gamma_ph.get_acoustic_mode_indices())} optic modes.")
 
     # Load Born charges and eps_inf
     if not os.path.exists(args.born_file):
@@ -66,7 +84,7 @@ def main():
     calc = InfraredCalculation(gamma_ph, born_charges, eps_inf=eps_inf)
 
     # Calculate spectrum
-    print(f"  Calculating spectrum in range {args.spectrum_range} THz with step {args.spectrum_step} THz...")
+    print(f"  Calculating spectrum using {args.units} units...")
     
     from phonopy_spectroscopy.instrument import Geometry, Polarisation
     geom = Geometry("z", "-z")
@@ -79,7 +97,13 @@ def main():
         lw=args.linewidth,
         x_range=args.spectrum_range,
         x_res=args.spectrum_step,
+        x_units=args.units,
     )
+
+    # Resolve range/step for printing if they were automatic
+    x_min, x_max = dielectric_func.x[0], dielectric_func.x[-1]
+    x_res = dielectric_func.x[1] - dielectric_func.x[0] if len(dielectric_func.x) > 1 else 0
+    print(f"  Spectrum range: {x_min:.2f} to {x_max:.2f}, step: {x_res:.4f} ({args.units})")
     
     spectrum_df = dielectric_func.spectrum()
 
@@ -102,6 +126,11 @@ def main():
         plt.legend()
         plt.title("Simulated Infrared Spectrum (Powder)")
         plt.grid(True)
+        
+        # Save plot
+        plot_filename = f"{args.wavelength:g}.png"
+        print(f"  Saving plot to {plot_filename}...")
+        plt.savefig(plot_filename)
         plt.show()
 
     print("Phonopy-IR: Finished.")
