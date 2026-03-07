@@ -17,20 +17,36 @@ dependencies = [
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 
+[project.scripts]
+phonopy-raman = "spectroscopy.cli.main_raman:main"
+phonopy-ir = "spectroscopy.cli.main_ir:main"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-package-dir = {"" = "lib"}
-packages = ["spectroscopy"]
-
-[tool.pixi.project]
+[tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
+preview = ["pixi-build"]
 
 [tool.pixi.pypi-dependencies]
 phonopy-spectroscopy = { path = ".", editable = true }
+
+[tool.pixi.package]
+run-dependencies = { phonopy = "*", numpy = "*", scipy = "*", pandas = "*", pyyaml = "*", h5py = "*" }
+name = "phonopy-spectroscopy"
+host-dependencies = { setuptools = "*" }
+
+[tool.pixi.package.build]
+  backend = { name = "pixi-build-python", version = "*" }
+  channels = ["https://prefix.dev/conda-forge"]
+
+[tool.setuptools.package-dir]
+"" = "lib"
+
+[tool.setuptools.packages.find]
+where = ["lib"]
 
 [tool.pixi.tasks]
 ir-legacy = "python scripts/phonopy-ir"
